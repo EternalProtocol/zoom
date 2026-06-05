@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NovaDEX | 去中心化交易所</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/ethers@6.13.5/dist/ethers.umd.min.js"></script>
+  
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#6366f1',
+            secondary: '#8b5cf6',
+            dark: '#111827',
+            light: '#f9fafb',
+            success: '#10b981',
+            warning: '#f59e0b',
+          },
+          fontFamily: {
+            inter: ['Inter', 'system-ui', 'sans-serif'],
+          },
+        },
+      }
+    }
+  </script>
+  
+  <style type="text/tailwindcss">
+    @layer utilities {
+      .content-auto {
+        content-visibility: auto;
+      }
+      .gradient-bg {
+        background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+      }
+      .card-hover {
+        transition: all 0.3s ease;
+      }
+      .card-hover:hover {
+        transform: translateY(-5px);
+      }
+      .glass-effect {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+    }
+  </style>
+</head>
+<body class="font-inter bg-gray-900 text-light min-h-screen">
+  <header class="fixed top-0 left-0 right-0 z-50 transition-all duration-300" id="navbar">
+    <div class="glass-effect py-3 px-4 md:px-8">
+      <div class="container mx-auto flex items-center justify-between">
+        <a href="#" class="flex items-center gap-2">
+          <div class="gradient-bg text-white p-2 rounded-lg">
+            <i class="fa fa-exchange text-xl"></i>
+          </div>
+          <h1 class="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">NovaDEX</h1>
+        </a>
+        
+        <nav class="hidden md:flex items-center gap-8">
+          <a href="#" class="text-white font-medium">首页</a>
+          <a href="#" class="text-gray-300 hover:text-primary">交易</a>
+          <a href="#" class="text-gray-300 hover:text-primary">流动性</a>
+          <a href="#" class="text-gray-300 hover:text-primary">挖矿</a>
+        </nav>
+        
+        <button id="connectWalletBtn" class="gradient-bg text-white px-5 py-2 rounded-lg font-medium flex items-center gap-2 hover:opacity-90">
+          <i class="fa fa-wallet"></i>
+          <span>连接钱包</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="pt-24 pb-16 px-4 md:px-8 container mx-auto">
+    <section class="mb-16">
+      <div class="flex flex-col lg:flex-row items-start justify-between gap-10">
+        <!-- 左侧：存款卡片（H5顶部优先展示） -->
+        <div class="lg:w-1/2 max-w-md w-full order-1 lg:order-none">
+          <div class="glass-effect rounded-2xl p-6 card-hover">
+            <div class="flex items-center justify-between mb-4">
+              <h2 class="text-xl font-bold">ZMX 存款中心</h2>
+              <div class="bg-success/20 text-success px-3 py-1 rounded-full text-sm">BSC 主网</div>
+            </div>
+
+            <div id="walletStatus" class="mb-3 text-sm text-gray-300">
+              未连接钱包
+            </div>
+
+            <div id="depositedInfo" class="hidden mb-3 p-3 rounded-lg bg-success/10 text-success text-sm">
+              已存款：<span id="depositTierText">0</span> 档
+            </div>
+
+            <div class="mb-4">
+              <label class="text-sm text-gray-400 block mb-1">绑定推荐人（仅一次）</label>
+              <div class="flex gap-2">
+                <input id="parentInput" class="flex-1 bg-gray-800 rounded-lg px-3 py-2 text-sm outline-none" placeholder="输入推荐人地址">
+                <button id="bindParentBtn" class="gradient-bg text-white px-3 py-2 rounded-lg text-sm">绑定</button>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2 mb-4">
+              <button data-tier="1" class="depositBtn p-3 rounded-lg bg-gray-800 hover:bg-primary/20 text-sm">300 USDT<br><span class="text-xs text-gray-400">档位 1</span></button>
+              <button data-tier="2" class="depositBtn p-3 rounded-lg bg-gray-800 hover:bg-primary/20 text-sm">600 USDT<br><span class="text-xs text-gray-400">档位 2</span></button>
+              <button data-tier="3" class="depositBtn p-3 rounded-lg bg-gray-800 hover:bg-primary/20 text-sm">3000 USDT<br><span class="text-xs text-gray-400">档位 3</span></button>
+              <button data-tier="4" class="depositBtn p-3 rounded-lg bg-gray-800 hover:bg-primary/20 text-sm">10000 USDT<br><span class="text-xs text-gray-400">档位 4</span></button>
+            </div>
+
+            <div class="text-xs text-gray-400">
+              存款后获得对应 ZMX 奖励<br>
+              我的上级：<span id="myParent">未绑定</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 右侧：只保留大标题 -->
+        <div class="lg:w-1/2 space-y-6">
+          <h1 class="text-[clamp(2rem,5vw,3.5rem)] font-bold leading-tight">
+            安全 <span class="bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">去中心化</span> 数字资产交易
+          </h1>
+        </div>
+      </div>
+
+      <!-- 整段描述、数据、按钮全部挪到区块最底部 -->
+      <div class="mt-10 space-y-6">
+        <p class="text-gray-300 text-lg">无需托管，自主掌控资产。每日签到领积分，邀请好友收益倍增。</p>
+        <div class="flex gap-8 flex-wrap">
+          <div><p class="text-2xl font-bold">$2.8B</p><p class="text-gray-400">24h成交量</p></div>
+          <div><p class="text-2xl font-bold">$12.4B</p><p class="text-gray-400">总锁仓量</p></div>
+          <div><p class="text-2xl font-bold">180K+</p><p class="text-gray-400">社区用户</p></div>
+        </div>
+        <div class="flex flex-wrap gap-4">
+          <button class="gradient-bg text-white px-6 py-3 rounded-lg font-medium">开始交易</button>
+          <button class="border border-primary text-primary px-6 py-3 rounded-lg font-medium hover:bg-primary/10">了解更多</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 功能区 -->
+    <section class="mb-16">
+      <h2 class="text-2xl font-bold mb-8 text-center">开始使用</h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="glass-effect rounded-2xl p-6 card-hover">
+          <div class="gradient-bg w-14 h-14 rounded-full flex items-center justify-center mb-4">
+            <i class="fa fa-wallet text-2xl text-white"></i>
+          </div>
+          <h3 class="text-xl font-bold mb-2">1. 连接钱包</h3>
+          <p class="text-gray-300">一键连接MetaMask等Web3钱包</p>
+        </div>
+        <div class="glass-effect rounded-2xl p-6 card-hover">
+          <div class="gradient-bg w-14 h-14 rounded-full flex items-center justify-center mb-4">
+            <i class="fa fa-calendar-check-o text-2xl text-white"></i>
+          </div>
+          <h3 class="text-xl font-bold mb-2">2. 每日签到</h3>
+          <p class="text-gray-300">签到免费领取积分，永久有效</p>
+        </div>
+        <div class="glass-effect rounded-2xl p-6 card-hover">
+          <div class="gradient-bg w-14 h-14 rounded-full flex items-center justify-center mb-4">
+            <i class="fa fa-users text-2xl text-white"></i>
+          </div>
+          <h3 class="text-xl font-bold mb-2">3. 邀请好友</h3>
+          <p class="text-gray-300">邀请越多，签到收益越高</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- 钱包弹窗 -->
+  <div id="walletModal" class="fixed inset-0 z-50 flex items-center justify-center hidden">
+    <div class="absolute inset-0 bg-black/60"></div>
+    <div class="glass-effect rounded-2xl p-6 w-full max-w-md relative z-10">
+      <div class="flex justify-between items-center mb-6">
+        <h3 class="text-xl font-bold">连接钱包</h3>
+        <button id="closeModalBtn" class="text-gray-400 hover:text-white"><i class="fa fa-times"></i></button>
+      </div>
+      <div class="space-y-3">
+        <button id="connectMetaMaskBtn" class="w-full bg-gray-800 hover:bg-gray-700 rounded-lg p-4 flex items-center gap-3">
+          <img src="https://picsum.photos/40/40?metamask" class="w-10 h-10 rounded-full">
+          <span>MetaMask</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 提示 -->
+  <div id="toast" class="fixed bottom-6 right-6 bg-success text-white px-6 py-3 rounded-lg shadow-lg z-50 hidden transform transition-transform">
+    <div class="flex items-center gap-2">
+      <i class="fa fa-check-circle"></i>
+      <span id="toastText">操作成功</span>
+    </div>
+  </div>
+
+  <script>
+    // =========================================
+    // 配置信息
+    // =========================================
+    const CONFIG = {
+      BSC_RPC: "https://bsc-dataseed1.binance.org",
+      BSC_CHAIN_ID: "0x38",
+      USDT: "0x55d398326f99059fF775485246999027B3197955",
+      ZMX: "0x7E4956AD3344494Fb31c9424662dE2F2C73Bc825",
+      DEPOSIT: "0x1607cb29D287c6C70c291C3d56c1F9bA601759B4",
+      ABI_DEPOSIT: [{"type":"constructor","inputs":[{"name":"_usdt","type":"address"}]},{"type":"function","name":"bindParent","inputs":[{"name":"parent","type":"address"}],"outputs":[],"stateMutability":"nonpayable"},{"type":"function","name":"deposit","inputs":[{"name":"tier","type":"uint8"}],"outputs":[],"stateMutability":"nonpayable"},{"type":"function","name":"emergencyWithdraw","inputs":[{"name":"amount","type":"uint256"}],"outputs":[],"stateMutability":"nonpayable"},{"type":"function","name":"parentOf","inputs":[{"name":"","type":"address"}],"outputs":[{"name":"","type":"address"}],"stateMutability":"view"},{"type":"function","name":"hasDeposited","inputs":[{"name":"","type":"address"}],"outputs":[{"name":"","type":"bool"}],"stateMutability":"view"},{"type":"function","name":"depositAmount","inputs":[{"name":"","type":"address"}],"outputs":[{"name":"","type":"uint256"}],"stateMutability":"view"},{"type":"function","name":"depositTier","inputs":[{"name":"","type":"address"}],"outputs":[{"name":"","type":"uint8"}],"stateMutability":"view"},{"type":"function","name":"owner","inputs":[],"outputs":[{"name":"","type":"address"}],"stateMutability":"view"},{"type":"function","name":"usdt","inputs":[],"outputs":[{"name":"","type":"address"}],"stateMutability":"view"},{"type":"function","name":"TIER_1","inputs":[],"outputs":[{"name":"","type":"uint256"}],"stateMutability":"view"},{"type":"function","name":"TIER_2","inputs":[],"outputs":[{"name":"","type":"uint256"}],"stateMutability":"view"},{"type":"function","name":"TIER_3","inputs":[],"outputs":[{"name":"","type":"uint256"}],"stateMutability":"view"},{"type":"function","name":"TIER_4","inputs":[],"outputs":[{"name":"","type":"uint256"}],"stateMutability":"view"},{"type":"event","name":"ParentBound","inputs":[{"name":"user","type":"address","indexed":true},{"name":"parent","type":"address","indexed":true},{"name":"timestamp","type":"uint256","indexed":false}]},{"type":"event","name":"Deposited","inputs":[{"name":"user","type":"address","indexed":true},{"name":"amount","type":"uint256","indexed":false},{"name":"tier","type":"uint8","indexed":false},{"name":"timestamp","type":"uint256","indexed":false}]},{"type":"event","name":"OwnershipTransferred","inputs":[{"name":"previousOwner","type":"address","indexed":true},{"name":"newOwner","type":"address","indexed":true}]}],
+      ABI_ERC20: [{"constant":true,"inputs":[{"name":"owner","type":"address"}],"name":"balanceOf","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"spender","type":"address"},{"name":"value","type":"uint256"}],"name":"approve","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[{"name":"owner","type":"address"},{"name":"spender","type":"address"}],"name":"allowance","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"}]
+    };
+
+    let provider, signer, userAddress, depositContract, usdtContract;
+
+    // =========================================
+    // UI 元素
+    // =========================================
+    const connectWalletBtn = document.getElementById('connectWalletBtn');
+    const walletModal = document.getElementById('walletModal');
+    const closeModalBtn = document.getElementById('closeModalBtn');
+    const connectMetaMaskBtn = document.getElementById('connectMetaMaskBtn');
+    const walletStatus = document.getElementById('walletStatus');
+    const toast = document.getElementById('toast');
+    const toastText = document.getElementById('toastText');
+    const bindParentBtn = document.getElementById('bindParentBtn');
+    const parentInput = document.getElementById('parentInput');
+    const depositBtns = document.querySelectorAll('.depositBtn');
+    const depositedInfo = document.getElementById('depositedInfo');
+    const depositTierText = document.getElementById('depositTierText');
+    const myParent = document.getElementById('myParent');
+
+    // =========================================
+    // 工具
+    // =========================================
+    function showToast(msg, success = true) {
+      toastText.textContent = msg;
+      toast.classList.remove('hidden');
+      setTimeout(() => toast.classList.add('hidden'), 3000);
+    }
+
+    function shortAddr(addr) {
+      if (!addr) return "0x000...0000";
+      return addr.slice(0, 6) + "..." + addr.slice(-4);
+    }
+
+    // =========================================
+    // 切换 BSC 网络
+    // =========================================
+    async function switchToBSC() {
+      try {
+        await window.ethereum.request({
+          method: "wallet_switchEthereumChain",
+          params: [{ chainId: CONFIG.BSC_CHAIN_ID }]
+        });
+      } catch (e) {
+        if (e.code === 4902) {
+          await window.ethereum.request({
+            method: "wallet_addEthereumChain",
+            params: [{
+              chainId: CONFIG.BSC_CHAIN_ID,
+              chainName: "BSC Mainnet",
+              nativeCurrency: { name: "BNB", symbol: "BNB", decimals: 18 },
+              rpcUrls: [CONFIG.BSC_RPC],
+              blockExplorerUrls: ["https://bscscan.com"]
+            }]
+          });
+        }
+      }
+    }
+
+    // =========================================
+    // 连接钱包
+    // =========================================
+    async function connectWallet() {
+      if (!window.ethereum) {
+        showToast("请安装 MetaMask", false);
+        return;
+      }
+      await switchToBSC();
+      provider = new ethers.BrowserProvider(window.ethereum);
+      await provider.send("eth_requestAccounts", []);
+      signer = await provider.getSigner();
+      userAddress = await signer.getAddress();
+
+      // 合约实例
+      usdtContract = new ethers.Contract(CONFIG.USDT, CONFIG.ABI_ERC20, signer);
+      depositContract = new ethers.Contract(CONFIG.DEPOSIT, CONFIG.ABI_DEPOSIT, signer);
+
+      connectWalletBtn.innerHTML = `<i class="fa fa-wallet"></i> ${shortAddr(userAddress)}`;
+      walletStatus.textContent = `已连接：${shortAddr(userAddress)}`;
+      walletModal.classList.add('hidden');
+      loadUserInfo();
+      showToast("钱包连接成功");
+    }
+
+    // =========================================
+    // 加载用户信息
+    // =========================================
+    async function loadUserInfo() {
+      if (!depositContract || !userAddress) return;
+      try {
+        const deposited = await depositContract.hasDeposited(userAddress);
+        const tier = await depositContract.depositTier(userAddress);
+        const parent = await depositContract.parentOf(userAddress);
+
+        if (deposited) {
+          depositedInfo.classList.remove('hidden');
+          depositTierText.textContent = tier;
+          document.querySelectorAll('.depositBtn').forEach(b => b.disabled = true);
+        }
+
+        if (parent !== ethers.ZeroAddress) {
+          myParent.textContent = shortAddr(parent);
+          bindParentBtn.disabled = true;
+          parentInput.disabled = true;
+        }
+      } catch (e) {}
+    }
+
+    // =========================================
+    // 绑定上级
+    // =========================================
+    bindParentBtn.onclick = async () => {
+      const parent = parentInput.value.trim();
+      if (!ethers.isAddress(parent)) return showToast("地址无效");
+      if (!signer) return showToast("请先连接钱包");
+      try {
+        bindParentBtn.disabled = true;
+        const tx = await depositContract.bindParent(parent);
+        await tx.wait();
+        showToast("绑定成功");
+        myParent.textContent = shortAddr(parent);
+        bindParentBtn.disabled = true;
+        parentInput.disabled = true;
+      } catch (e) {
+        showToast("绑定失败：" + e.message.slice(0, 30));
+        bindParentBtn.disabled = false;
+      }
+    };
+
+    // =========================================
+    // 存款
+    // =========================================
+    depositBtns.forEach(btn => {
+      btn.onclick = async () => {
+        const tier = parseInt(btn.dataset.tier);
+        if (!signer) return showToast("请连接钱包");
+        try {
+          btn.disabled = true;
+          const amounts = [0, "300", "600", "3000", "10000"];
+          const amount = ethers.parseUnits(amounts[tier], 18);
+
+          showToast("授权中...");
+          const approveTx = await usdtContract.approve(CONFIG.DEPOSIT, amount);
+          await approveTx.wait();
+
+          showToast("存款中...");
+          const depositTx = await depositContract.deposit(tier);
+          await depositTx.wait();
+
+          showToast(`存款 ${tier} 档成功`);
+          await loadUserInfo();
+        } catch (e) {
+          showToast("失败：" + e.message.slice(0, 30));
+          btn.disabled = false;
+        }
+      };
+    });
+
+    // =========================================
+    // 弹窗
+    // =========================================
+    connectWalletBtn.onclick = () => walletModal.classList.remove('hidden');
+    closeModalBtn.onclick = () => walletModal.classList.add('hidden');
+    connectMetaMaskBtn.onclick = connectWallet;
+  </script>
+</body>
+</html>
